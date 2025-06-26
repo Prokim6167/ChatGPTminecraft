@@ -1093,7 +1093,8 @@ async function detectDoorsInPath(bot, targetX, targetY, targetZ) {
 
 export async function goToPosition(bot, x, y, z, min_distance=2) {
     /**
-     * Navigate to the given position.
+     * Navigate to the given position with automatic door handling.
+     * This function automatically detects and opens any closed doors in the planned path.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {number} x, the x coordinate to navigate to. If null, the bot's current x coordinate will be used.
      * @param {number} y, the y coordinate to navigate to. If null, the bot's current y coordinate will be used.
@@ -1103,6 +1104,7 @@ export async function goToPosition(bot, x, y, z, min_distance=2) {
      * @example
      * let position = world.world.getNearestBlock(bot, "oak_log", 64).position;
      * await skills.goToPosition(bot, position.x, position.y, position.x + 20);
+     * // The bot will automatically open any doors it encounters on the way
      **/
     if (x == null || y == null || z == null) {
         log(bot, `Missing coordinates, given x:${x} y:${y} z:${z}`);
