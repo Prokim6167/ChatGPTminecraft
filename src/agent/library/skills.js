@@ -1029,43 +1029,52 @@ async function detectDoorsInPath(bot, targetX, targetY, targetZ) {
         const doorsInPath = [];
         const checkedPositions = new Set();
         
-        // Check each point in the path for doors
-        for (const node of path.path) {
+        // Optimized door scanning: check strategic positions along path
+        // Sample path nodes to avoid O(n³) complexity on very long paths
+        const maxNodesToCheck = 50; // Limit scanning for performance
+        const nodeStep = Math.max(1, Math.floor(path.path.length / maxNodesToCheck));
+        
+        for (let i = 0; i < path.path.length; i += nodeStep) {
+            const node = path.path[i];
             const x = Math.floor(node.x);
             const y = Math.floor(node.y);
             const z = Math.floor(node.z);
             
-            // Check current position and adjacent positions for doors (focusing on horizontal movement)
-            for (let dx = -1; dx <= 1; dx++) {
-                for (let dy = -1; dy <= 2; dy++) { // Check up to 2 blocks high for doors
-                    for (let dz = -1; dz <= 1; dz++) {
-                        const checkX = x + dx;
-                        const checkY = y + dy;
-                        const checkZ = z + dz;
-                        const posKey = `${checkX},${checkY},${checkZ}`;
+            // Optimized neighbor check: only check likely door positions
+            const neighborOffsets = [
+                // Direct adjacency (most common door positions)
+                [0, 0, 0], [0, 1, 0], [0, 2, 0], // Current position vertical
+                [-1, 0, 0], [-1, 1, 0], [-1, 2, 0], // West
+                [1, 0, 0], [1, 1, 0], [1, 2, 0],   // East  
+                [0, 0, -1], [0, 1, -1], [0, 2, -1], // North
+                [0, 0, 1], [0, 1, 1], [0, 2, 1]     // South
+            ];
+            
+            for (const [dx, dy, dz] of neighborOffsets) {
+                const checkX = x + dx;
+                const checkY = y + dy;
+                const checkZ = z + dz;
+                const posKey = `${checkX},${checkY},${checkZ}`;
+                
+                if (checkedPositions.has(posKey)) continue;
+                checkedPositions.add(posKey);
+                
+                const block = bot.blockAt(new Vec3(checkX, checkY, checkZ));
+                if (block && doorTypes.includes(block.name)) {
+                    // Check if door is closed
+                    const isOpen = block._properties && block._properties.open;
+                    if (!isOpen) {
+                        // Quick duplicate check using position key
+                        const doorKey = `${block.position.x},${block.position.y},${block.position.z}`;
+                        const alreadyAdded = doorsInPath.some(door => 
+                            `${door.position.x},${door.position.y},${door.position.z}` === doorKey
+                        );
                         
-                        if (checkedPositions.has(posKey)) continue;
-                        checkedPositions.add(posKey);
-                        
-                        const block = bot.blockAt(new Vec3(checkX, checkY, checkZ));
-                        if (block && doorTypes.includes(block.name)) {
-                            // Check if door is closed (using _properties to match existing code pattern)
-                            const isOpen = block._properties && block._properties.open;
-                            if (!isOpen) {
-                                // Check if this door is already in our list (doors can be 2 blocks tall)
-                                const alreadyAdded = doorsInPath.some(door => 
-                                    Math.abs(door.position.x - block.position.x) <= 1 &&
-                                    Math.abs(door.position.y - block.position.y) <= 1 &&
-                                    Math.abs(door.position.z - block.position.z) <= 1
-                                );
-                                
-                                if (!alreadyAdded) {
-                                    doorsInPath.push({
-                                        position: block.position,
-                                        type: block.name
-                                    });
-                                }
-                            }
+                        if (!alreadyAdded) {
+                            doorsInPath.push({
+                                position: block.position,
+                                type: block.name
+                            });
                         }
                     }
                 }
