@@ -1085,7 +1085,6 @@ async function detectDoorsInPath(bot, targetX, targetY, targetZ) {
         
     } catch (error) {
         // If path calculation fails, return empty array
-        console.log('Door detection failed:', error.message);
         return [];
     }
 }
