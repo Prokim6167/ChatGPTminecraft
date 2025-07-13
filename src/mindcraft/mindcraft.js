@@ -8,14 +8,19 @@ let agent_count = 0;
 let host = 'localhost';
 let port = 8080;
 
-export async function init(host_public=false, port=8080) {
+export async function init(host_public=false, port_param=8080) {
     if (connected) {
         console.error('Already initiliazed!');
         return;
     }
-    mindserver = createMindServer(host_public, port);
-    port = port;
+    console.log(`Initializing MindServer on port ${port_param}`);
+    
+    // Wait for the server to be ready before continuing
+    mindserver = await createMindServer(host_public, port_param);
+    
+    port = port_param;
     connected = true;
+    console.log(`MindServer initialization complete on port ${port}`);
 }
 
 export async function createAgent(settings) {
