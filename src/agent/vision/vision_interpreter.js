@@ -1,5 +1,4 @@
 import { Vec3 } from 'vec3';
-import { Camera } from "./camera.js";
 import fs from 'fs';
 
 export class VisionInterpreter {
@@ -7,9 +6,7 @@ export class VisionInterpreter {
         this.agent = agent;
         this.allow_vision = allow_vision;
         this.fp = './bots/'+agent.name+'/screenshots/';
-        if (allow_vision) {
-            this.camera = new Camera(agent.bot, this.fp);
-        }
+        this.camera = null; // Camera functionality removed
     }
 
     async lookAtPlayer(player_name, direction) {
@@ -23,19 +20,15 @@ export class VisionInterpreter {
             return `Could not find player ${player_name}`;
         }
 
-        let filename;
         if (direction === 'with') {
             await bot.look(player.yaw, player.pitch);
             result = `Looking in the same direction as ${player_name}\n`;
-            filename = await this.camera.capture();
         } else {
             await bot.lookAt(new Vec3(player.position.x, player.position.y + player.height, player.position.z));
             result = `Looking at player ${player_name}\n`;
-            filename = await this.camera.capture();
-
         }
 
-        return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
+        return result + "Image capture functionality has been disabled.";
     }
 
     async lookAtPosition(x, y, z) {
@@ -47,9 +40,7 @@ export class VisionInterpreter {
         await bot.lookAt(new Vec3(x, y + 2, z));
         result = `Looking at coordinate ${x}, ${y}, ${z}\n`;
 
-        let filename = await this.camera.capture();
-
-        return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
+        return result + "Image capture functionality has been disabled.";
     }
 
     getCenterBlockInfo() {

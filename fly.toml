@@ -1,0 +1,47 @@
+# fly.toml app configuration file for websim-mindcraft
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'websim-mindcraft'
+primary_region = 'ewr'
+
+[build]
+dockerfile = "Dockerfile"
+
+[env]
+DOCKER_BUILDKIT = "1"
+HOST_PUBLIC = "true"
+
+[[restart]]
+policy = "always"
+processes = ["app"]
+
+[http_service]
+internal_port = 8080
+force_https = true
+auto_stop_machines = 'stop'
+auto_start_machines = true
+min_machines_running = 1
+max_machines_running = 1
+processes = ['app']
+
+[[services]]
+internal_port = 8080
+protocol = "tcp"
+auto_stop_machines = 'stop'
+auto_start_machines = true
+min_machines_running = 1
+
+[[services.ports]]
+port = 80
+handlers = ["http"]
+
+[[services.ports]]
+port = 443
+handlers = ["tls", "http"]
+
+[[vm]]
+memory = '4gb'
+cpu_kind = 'shared'
+cpus = 2

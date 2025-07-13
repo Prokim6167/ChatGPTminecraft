@@ -96,20 +96,9 @@
         .setting-wrapper input[type="checkbox"] {
             transform: scale(1.2);
         }
-        .agent-viewer {
-            width: 200px;
-            height: 150px;
-            border: none;
-            margin-left: 10px;
-        }
         .start-btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
-        }
-        .agent-view-container {
-            margin-top: 6px;
-            display: flex;
-            justify-content: flex-start;
         }
     </style>
 </head>
@@ -248,8 +237,6 @@
             agentsDiv.innerHTML = agents.length ?
                 agents.map((agent, idx) => {
                     const cfg = agentSettings[agent.name] || {};
-                    const showViewer = cfg.render_bot_view === true;
-                    const viewerHTML = showViewer ? `<div class="agent-view-container"><iframe class="agent-viewer" src="http://localhost:${3000 + idx}"></iframe></div>` : '';
                     return `
                     <div class="agent">
                         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -265,7 +252,6 @@
                                 `}
                             </div>
                         </div>
-                        ${viewerHTML}
                     </div>`;
                 }).join('') +
                 `<button class="stop-btn" onclick="killAllAgents()">Stop All</button>

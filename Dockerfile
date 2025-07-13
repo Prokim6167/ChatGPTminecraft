@@ -15,9 +15,6 @@ RUN apt-get -y install tmux
 
 RUN git clone https://github.com/kolbytn/mindcraft.git /mindcraft
 WORKDIR /mindcraft
-COPY ./server_data.zip /mindcraft
-RUN unzip server_data.zip
-
 RUN npm install
 
 
@@ -46,6 +43,13 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 RUN unzip awscliv2.zip
 RUN ./aws/install
 
+COPY . /mindcraft
+
 VOLUME /data
 
-EXPOSE 8000
+EXPOSE 8080
+
+# Environment variables are set in fly.toml
+
+# Start the application
+CMD ["npm", "start"]
